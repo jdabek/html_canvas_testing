@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>canvas</title>
+
+<script type="text/javascript">
+function drawCanvas(x, y)
+{
+    var bw = window.innerWidth;
+    var bh = window.innerHeight;
+    var c = document.getElementById("canvas");
+    c.width = 0.7*bw;
+    c.height = 0.8*bh;
+    var wpad = 5;
+    var hpad = 5;
+    var w = c.width-2*wpad;
+    var h = c.height-2*hpad;
+    var ctx = c.getContext("2d");
+    var nsamp = x.length;
+    if (nsamp != y.length || nsamp == 0)
+    {
+        x = [];
+        y = [];
+        nsamp = 1000;
+        for (var i=0; i < nsamp; i++)
+        {
+            var t = 0.5*i*h/nsamp;
+            x[i] = 0.5*w+t*Math.cos(15.0*2.0*Math.PI*t/h/0.5);
+            y[i] = 0.5*h+t*Math.sin(15.0*2.0*Math.PI*t/h/0.5);
+        }
+    }
+    var xmin = x[0];
+    var xmax = xmin;
+    var ymin = y[0];
+    var ymax = ymin;
+    for (var i=0; i < nsamp; i++)
+    {
+        if (x[i] < xmin)
+            xmin = x[i];
+        if (x[i] > xmax)
+            xmax = x[i];
+        if (y[i] < ymin)
+            ymin = y[i];
+        if (y[i] > ymax)
+            ymax = y[i];
+    }
+    var x2 = new Array(nsamp);
+    var y2 = new Array(nsamp);
+    for (var i=0; i < nsamp; i++)
+    {
+        if (xmin == xmax)
+            x2[i] = 0.5*w;
+        else
+            x2[i] = (x[i]-xmin)*w/(xmax-xmin);
+        if (ymin == ymax)
+            y2[i] = 0.5*h;
+        else
+            y2[i] = (y[i]-ymin)*h/(ymax-ymin);
+
+    }
+    if (nsamp == 1)
+    {
+        ctx.fillStyle = "#000000";
+        ctx.beginPath();
+        ctx.arc(x2[0], y2[0], 5, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+    for (var i=1; i < nsamp; i++)
+    {
+        ctx.moveTo(wpad+x2[i-1], hpad+h-y2[i-1]);
+        ctx.lineTo(wpad+x2[i], hpad+h-y2[i]);
+        ctx.stroke();
+    }
+}
+
+function readMatrix()
+{
+    var nsamp = 0;
+    var x = [];
+    var y = [];
+    var t = document.getElementById("textarea");
+    var text = t.value + "\n";
+    var lines = t.value.split("\n");
+    var isValid = true;
+    for (var i=0; i < lines.length; i++)
+    {
+        if(lines[i].length == 0)
+            continue;
+        var vals = lines[i].split(' ');
+        if (vals.length != 2)
+        {
+            isValid = false;
+            break;
+        }
+        var a = parseFloat(vals[0]);
+        var b = parseFloat(vals[1]);
+        if (isNaN(a) || isNaN(b))
+        {
+            isValid = false;
+            break;
+        }
+        x[nsamp] = a;
+        y[nsamp] = b;
+        nsamp++;
+    }
+    if (!isValid)
+        return [[], []];
+    return [x, y];
+}
+
+function showData(doReset)
+{
+    if (doReset)
+    {
+        var t = document.getElementById("textarea");
+        t.value = t.innerHTML;
+    }
+    var x;
+    var y;
+    [x, y] = readMatrix();
+    drawCanvas(x, y);
+}
+</script>
+
+</head>
+<body onload="showData();">
+
+<h1>canvas example</h1>
+
+<div id="container" width="vw" style="margin:auto;">
+<div id="divleft" width="0.7vw" height="0.8vh" style="float:left;">
+<canvas id="canvas" width="480" height="270"></canvas>
+</div>
+<div id="divright" width="0.28vw" height="0.8vh" style="float:left;">
+<textarea id="textarea" style="font-size:30px;" rows="20" cols="20">
+0 0
+10 0
+10 5
+9 5
+15 8
+21 5
+20 5
+20 0
+30 0
+30 5
+28 4
+30 6
+28.5 5
+30 7
+29 6.5
+30.5 9
+32 6.5
+31 7
+32.5 5
+31 6
+33 4
+31 5
+31 0
+35 0
+</textarea>
+<div width="100%" style="display:flex;align-items:center;justify-content:center;padding-top:40px;">
+<button id="btnDraw" onclick="showData(false);" style="margin-right:30px;"><span style="font-size:30px;">Draw</span></button>
+<button id="btnReset" onclick="showData(true);"><span style="font-size:30px;">Reset</span></button>
+</div>
+</div>
+</div>
+
+</body>
+</html>
