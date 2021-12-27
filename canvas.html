@@ -121,10 +121,12 @@ function showData(doReset)
     [x, y] = readMatrix();
     drawCanvas(x, y);
 }
+
+window.onload = function(){ showData(false); };
 </script>
 
 </head>
-<body onload="showData(false);">
+<body>
 
 <h1>canvas example</h1>
 
