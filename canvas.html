@@ -122,7 +122,9 @@ function showData(doReset)
     drawCanvas(x, y);
 }
 
-window.onload = function(){ showData(false); };
+document.addEventListener("DOMContentLoaded", function(){
+    showData(false);
+}, false);
 </script>
 
 </head>
